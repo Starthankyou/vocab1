@@ -1,0 +1,298 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>形近字闖關</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@900&display=swap">
+<style>
+:root {
+  --paper: #fbf7ee; --card: #fffdf8; --ink: #221e19; --muted: #6f675b; --line: #e2d9c8; --soft: #f2ebdc;
+  --seal: #c8372d; --ok: #2f7d4f; --okbg: #e3f2e8; --nobg: #fbe5e1; --gold: #b7851d;
+  --hand: "LXGW WenKai TC", "Kaiti TC", "BiauKai", "DFKai-SB", serif;
+  --body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --display: "Noto Serif TC", "Songti TC", serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #171511; --card: #211e19; --ink: #efe8dc; --muted: #a59d8f; --line: #3a342c; --soft: #2a261f;
+  --seal: #ff7a68; --ok: #6fd39a; --okbg: #1d3527; --nobg: #3d221e; --gold: #e8b64a; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --paper: #171511; --card: #211e19; --ink: #efe8dc; --muted: #a59d8f; --line: #3a342c; --soft: #2a261f;
+  --seal: #ff7a68; --ok: #6fd39a; --okbg: #1d3527; --nobg: #3d221e; --gold: #e8b64a; color-scheme: dark; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.6 var(--body); }
+button { font: inherit; color: inherit; cursor: pointer; }
+.wrap { max-width: 720px; margin: 0 auto; padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 48px max(16px, env(safe-area-inset-left)); }
+.hand { font-family: var(--hand); }
+b { color: var(--seal); }
+.top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; min-height: 40px; }
+.back { border: 1px solid var(--line); background: var(--card); border-radius: 99px; padding: 4px 14px; font-size: 15px; }
+.top .t { font-weight: 700; flex: 1; }
+.pill { font-size: 14px; background: var(--soft); border-radius: 99px; padding: 2px 10px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* 首頁 */
+.hero { padding: 18px 0 8px; }
+.eyebrow { font-size: 13px; letter-spacing: .12em; color: var(--muted); }
+.hero h1 { font: 900 clamp(32px, 8vw, 46px)/1.15 var(--display); margin: 4px 0 6px; }
+.hero h1 span { color: var(--seal); }
+.hero p { margin: 0; color: var(--muted); }
+.modes { display: grid; gap: 10px; margin-top: 18px; }
+.mode { text-align: left; display: grid; grid-template-columns: 52px 1fr auto; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; transition: transform .1s; }
+.mode:active { transform: scale(.98); }
+.mode .ic { font: 700 30px/1 var(--hand); width: 52px; height: 52px; border-radius: 12px; display: grid; place-items: center; background: var(--soft); color: var(--seal); }
+.mode strong { display: block; font-size: 18px; }
+.mode small { color: var(--muted); font-size: 14px; }
+.mode .badge { font-size: 13px; color: var(--muted); }
+.mode.boss .ic { background: var(--seal); color: var(--card); }
+.mode[disabled] { opacity: .45; }
+
+/* 題目 */
+.timer { height: 6px; background: var(--soft); border-radius: 99px; overflow: hidden; margin-bottom: 18px; }
+.timer i { display: block; height: 100%; background: var(--seal); width: 100%; transform-origin: left; }
+.qcard { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 28px 16px 22px; text-align: center; }
+.qword { font: 700 clamp(40px, 12vw, 64px)/1.2 var(--hand); letter-spacing: .08em; overflow-wrap: anywhere; }
+.qword .hole { display: inline-block; width: 1.05em; height: 1.05em; border: 3px dashed var(--seal); border-radius: 10px; vertical-align: -0.12em; margin: 0 .04em; }
+.qword .hole.fill { border-style: solid; color: var(--seal); line-height: 1; }
+.qhint { color: var(--muted); font-size: 14px; margin-top: 8px; }
+.opts { display: grid; grid-template-columns: repeat(var(--n, 2), 1fr); gap: 10px; margin-top: 16px; }
+.opt { font: 700 44px/1 var(--hand); padding: 18px 0; background: var(--card); border: 2px solid var(--line); border-radius: 16px; transition: transform .08s; }
+.opt:active { transform: scale(.96); }
+.opt.ok { background: var(--okbg); border-color: var(--ok); color: var(--ok); }
+.opt.no { background: var(--nobg); border-color: var(--seal); color: var(--seal); }
+.combo { text-align: center; font-weight: 700; color: var(--gold); min-height: 28px; margin-top: 10px; }
+
+/* 解說卡 */
+.explain { margin-top: 16px; background: var(--card); border: 2px solid var(--seal); border-radius: 16px; padding: 16px; animation: up .25s ease; }
+.explain.good { border-color: var(--ok); }
+@keyframes up { from { opacity: 0; transform: translateY(8px); } }
+.ex-h { display: flex; align-items: center; gap: 12px; }
+.ex-ch { font: 700 54px/1 var(--hand); color: var(--seal); }
+.explain.good .ex-ch { color: var(--ok); }
+.ex-h p { margin: 0; }
+.ex-rad { display: inline-block; font-size: 13px; background: var(--soft); border-radius: 99px; padding: 1px 10px; margin-top: 2px; }
+.cmp { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; display: grid; gap: 6px; }
+.cmp-r { display: grid; grid-template-columns: 40px 1fr; gap: 8px; align-items: baseline; font-size: 15px; }
+.cmp-r .c { font: 700 28px/1 var(--hand); }
+.cmp-r small { color: var(--muted); display: block; }
+.hook { margin-top: 10px; background: var(--soft); border-radius: 10px; padding: 10px 12px; font-size: 15px; }
+.go { width: 100%; margin-top: 14px; background: var(--ink); color: var(--paper); border: 0; border-radius: 12px; padding: 13px; font-weight: 700; font-size: 17px; }
+
+/* 偵探 */
+.sent { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; font: 400 30px/1 var(--hand); }
+.sent button { background: none; border: 0; padding: 6px 2px; min-width: 34px; border-radius: 8px; }
+.sent button.p { pointer-events: none; color: var(--muted); min-width: 20px; }
+.sent button.hit { background: var(--nobg); color: var(--seal); text-decoration: line-through; }
+.sent button.miss { animation: shake .3s; }
+.sent button.fixed { background: var(--okbg); color: var(--ok); }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+/* 規則卡 */
+.tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.tabs button { border: 1px solid var(--line); background: var(--card); border-radius: 99px; padding: 4px 14px; }
+.tabs button.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.rad { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; margin-bottom: 10px; }
+.rad-h { display: flex; align-items: baseline; gap: 10px; }
+.rad-h .s { font: 700 30px/1 var(--hand); color: var(--seal); }
+.rad-h strong { font-size: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chip { font: 700 24px/1 var(--hand); width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); }
+.trap { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; }
+.trap .w { font: 700 26px/1.3 var(--hand); letter-spacing: .05em; }
+.trap p { margin: 4px 0 0; font-size: 15px; color: var(--muted); }
+.sheet { position: fixed; inset: auto 0 0; background: var(--card); border-top: 2px solid var(--seal); border-radius: 18px 18px 0 0; padding: 18px max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); max-height: 70vh; overflow: auto; box-shadow: 0 -8px 30px rgba(0,0,0,.15); animation: up .2s; }
+.sheet .in { max-width: 680px; margin: 0 auto; }
+
+/* 結果 */
+.result { text-align: center; padding: 30px 0 10px; }
+.result .big { font: 900 64px/1 var(--display); color: var(--seal); }
+.result p { color: var(--muted); }
+.misslist { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 12px 0; }
+.empty { color: var(--muted); text-align: center; padding: 30px 0; }
+</style>
+<div class="wrap" id="app"></div>
+<script>
+const D = {"id":"st02","title":"形近字的分辨","unit":"單元壹 認識字形・第 2 站","radicals":{"手":"用手做的動作","心":"心裡的感受","言":"用嘴說話","口":"嘴巴發出聲音","足":"腳的動作","目":"眼睛看","糸":"線、繩、布料","金":"金屬、刀劍","艸":"草木植物","水":"水、液體","火":"火、光、熱","疒":"生病、身體不適","貝":"錢財","衣":"衣服、用布包","禾":"稻穀、收成","米":"米糧","犬":"野獸、打獵","木":"木頭、樹","馬":"馬、奔跑","力":"出力去做","辵":"走路、道路","竹":"竹子做的東西","巾":"布、布做的東西","鳥":"鳥類","玉":"美玉、玉的光澤","日":"太陽、時間","土":"泥土、地面","示":"鬼神、福氣","石":"石頭、磨","肉":"身體部位","人":"人","山":"山","女":"女子、柔美","虫":"蟲、會爬的小動物","雨":"天空、雲氣","食":"食物","刀":"用刀切開"},"radicalShape":{"手":"扌","心":"忄","言":"言","艸":"艹","水":"氵","犬":"犭","辵":"辶","玉":"王","示":"礻","肉":"月","衣":"衤","人":"亻","足":"⻊","糸":"糸","金":"金","食":"食","刀":"刂"},"chars":[{"c":"布","r":"巾","g":"一塊布攤開","w":["分布","擺布"],"gi":0},{"c":"怖","r":"心","g":"心裡害怕","w":["恐怖"],"gi":0},{"c":"簿","r":"竹","g":"竹片編成的本子","w":["對簿公堂","簿子"],"gi":1},{"c":"薄","r":"艸","g":"草木稀疏→不厚","w":["刻薄","薄利多銷"],"gi":1},{"c":"補","r":"衣","g":"縫補衣服","w":["亡羊補牢","修補"],"gi":2},{"c":"捕","r":"手","g":"用手去抓","w":["捕風捉影","逮捕"],"gi":2},{"c":"繃","r":"糸","g":"繩子拉緊","w":["緊繃","繃著臉"],"gi":3},{"c":"蹦","r":"足","g":"用腳跳","w":["蹦蹦跳跳"],"gi":3},{"c":"博","r":"","g":"多、廣","w":["博學","博得喝采"],"gi":4},{"c":"搏","r":"手","g":"用手打鬥","w":["搏鬥","放手一搏"],"gi":4},{"c":"膊","r":"肉","g":"手臂","w":["打赤膊","胳膊"],"gi":4},{"c":"敝","r":"","g":"破舊","w":["凋敝","視如敝屣"],"gi":5},{"c":"弊","r":"","g":"壞處、作假","w":["作弊","弊端"],"gi":5},{"c":"幣","r":"巾","g":"古代用布帛交易→錢","w":["錢幣","貨幣"],"gi":5},{"c":"蔽","r":"艸","g":"草叢遮住","w":["遮蔽","蒙蔽"],"gi":5},{"c":"斃","r":"","g":"死亡","w":["坐以待斃"],"gi":5},{"c":"辨","r":"刀","g":"用刀切開→分清楚","w":["分辨","辨識"],"gi":6},{"c":"辯","r":"言","g":"用嘴爭論","w":["辯論","百口莫辯"],"gi":6},{"c":"辮","r":"糸","g":"用線編起來","w":["辮子"],"gi":6},{"c":"瓣","r":"","g":"瓜果花朵的一片","w":["花瓣","瓣膜"],"gi":6},{"c":"辦","r":"力","g":"出力做事","w":["辦公室","籌辦"],"gi":6},{"c":"伴","r":"人","g":"陪在旁邊的人","w":["作伴","伴奏","伴侶"],"gi":7},{"c":"拌","r":"手","g":"用手攪","w":["涼拌","攪拌"],"gi":7},{"c":"絆","r":"糸","g":"繩子纏住腳","w":["絆腳石","羈絆"],"gi":7},{"c":"畔","r":"","g":"田的邊→岸邊","w":["湖畔","相思河畔"],"gi":7},{"c":"判","r":"刀","g":"一刀分開→下決定","w":["判若兩人","判決"],"gi":7},{"c":"叛","r":"","g":"反過來背離","w":["背叛","眾叛親離"],"gi":7},{"c":"扮","r":"手","g":"動手打扮","w":["扮演","打扮"],"gi":7},{"c":"怦","r":"心","g":"心跳的聲音","w":["怦然心動"],"gi":8},{"c":"抨","r":"手","g":"用手打→批評","w":["抨擊"],"gi":8},{"c":"矛","r":"","g":"長長的兵器","w":["自相矛盾","矛頭"],"gi":9},{"c":"茅","r":"艸","g":"茅草","w":["名列前茅","茅塞頓開"],"gi":9},{"c":"蜜","r":"虫","g":"蜜蜂釀的","w":["甜蜜","蜜月"],"gi":10},{"c":"密","r":"","g":"緊密、不公開","w":["親密","密切","祕密"],"gi":10},{"c":"蔓","r":"艸","g":"藤蔓一路爬開","w":["蔓延","荒煙蔓草"],"gi":11},{"c":"漫","r":"水","g":"水漫開→隨便、很長","w":["漫不經心","漫長"],"gi":11},{"c":"芒","r":"艸","g":"草尖的細刺→光芒","w":["光芒萬丈","鋒芒畢露","芒刺在背"],"gi":12},{"c":"茫","r":"水","g":"一大片水看不清","w":["茫然","茫無頭緒"],"gi":12},{"c":"瞞","r":"目","g":"遮住別人的眼睛","w":["瞞天過海"],"gi":13},{"c":"蹣","r":"足","g":"腳步不穩","w":["蹣跚而行"],"gi":13},{"c":"顢","r":"","g":"糊塗不明事理","w":["顢頇無能"],"gi":13},{"c":"滿","r":"水","g":"裝滿","w":["滿不在乎"],"gi":13},{"c":"慕","r":"心","g":"心裡嚮往","w":["羨慕","慕名而來"],"gi":14},{"c":"募","r":"力","g":"出力去找","w":["募捐","募款"],"gi":14},{"c":"幕","r":"巾","g":"布簾","w":["開幕","夜幕","銀幕"],"gi":14},{"c":"暮","r":"日","g":"太陽下山","w":["日暮途窮"],"gi":14},{"c":"妨","r":"女","g":"阻礙","w":["妨礙工作","妨害自由"],"gi":15},{"c":"防","r":"","g":"築土堤防守","w":["防備","防止"],"gi":15},{"c":"番","r":"","g":"次、回","w":["三番兩次","創一番事業"],"gi":16},{"c":"翻","r":"","g":"鳥翅膀翻動","w":["翻來覆去","鹹魚翻身"],"gi":16},{"c":"釜","r":"金","g":"金屬做的鍋","w":["破釜沉舟","釜底抽薪"],"gi":17},{"c":"斧","r":"","g":"斧頭","w":["班門弄斧"],"gi":17},{"c":"分","r":"刀","g":"分開","w":["勞燕分飛"],"gi":18},{"c":"紛","r":"糸","g":"線又多又亂","w":["眾說紛紜","議論紛紛"],"gi":18},{"c":"氛","r":"","g":"氣氛","w":["氣氛"],"gi":18},{"c":"鋒","r":"金","g":"刀劍的尖端","w":["兩軍交鋒","針鋒相對","鋒面"],"gi":19},{"c":"峰","r":"山","g":"山頂","w":["尖峰時刻","登峰造極"],"gi":19},{"c":"蜂","r":"虫","g":"蜜蜂","w":["一窩蜂","蜂擁而來"],"gi":19},{"c":"烽","r":"火","g":"烽火臺的火","w":["烽火連天"],"gi":19},{"c":"締","r":"糸","g":"打結→訂立","w":["取締","締造"],"gi":20},{"c":"諦","r":"言","g":"仔細聽、真理","w":["真諦","諦聽"],"gi":20},{"c":"蒂","r":"艸","g":"花果連著枝的柄","w":["根深蒂固","花開並蒂"],"gi":20},{"c":"盯","r":"目","g":"眼睛盯住","w":["緊盯不放"],"gi":21},{"c":"叮","r":"口","g":"嘴巴交代","w":["叮嚀"],"gi":21},{"c":"旦","r":"日","g":"太陽剛升起→一天、某天","w":["一旦有了危險"],"gi":22},{"c":"但","r":"人","g":"轉折的詞","w":["不但","但凡"],"gi":22},{"c":"砥","r":"石","g":"磨刀石","w":["中流砥柱","砥礪"],"gi":23},{"c":"詆","r":"言","g":"用話罵人","w":["詆毀"],"gi":23},{"c":"邸","r":"","g":"大官的住所","w":["官邸"],"gi":23},{"c":"惰","r":"心","g":"心裡懶","w":["懶惰","怠惰"],"gi":24},{"c":"墮","r":"土","g":"掉到地上","w":["自甘墮落"],"gi":24},{"c":"墜","r":"土","g":"往下掉","w":["下墜","呱呱墜地"],"gi":24},{"c":"咄","r":"口","g":"用嘴逼人","w":["咄咄逼人"],"gi":25},{"c":"拙","r":"手","g":"手笨","w":["笨拙","弄巧成拙"],"gi":25},{"c":"絀","r":"糸","g":"布不夠用","w":["相形見絀","左支右絀"],"gi":25},{"c":"茁","r":"艸","g":"草長出來","w":["茁壯"],"gi":25},{"c":"袒","r":"衣","g":"脫衣露出→偏護","w":["袒護"],"gi":26},{"c":"坦","r":"土","g":"地很平→心直","w":["坦白"],"gi":26},{"c":"途","r":"辵","g":"道路","w":["老馬識途","途徑"],"gi":27},{"c":"塗","r":"土","g":"泥巴","w":["一敗塗地","塗鴉"],"gi":27},{"c":"蹚","r":"足","g":"腳踩進水裡","w":["蹚渾水"],"gi":28},{"c":"瞠","r":"目","g":"瞪大眼睛","w":["瞠目結舌"],"gi":28},{"c":"攤","r":"手","g":"用手攤開","w":["攤子","分攤"],"gi":29},{"c":"灘","r":"水","g":"水邊的沙地","w":["海灘"],"gi":29},{"c":"癱","r":"疒","g":"生病不能動","w":["全身癱瘓"],"gi":29},{"c":"塌","r":"土","g":"土倒下來","w":["坍塌","一塌糊塗","死心塌地"],"gi":30},{"c":"遢","r":"辵","g":"走路不整齊→不整潔","w":["邋遢"],"gi":30},{"c":"蹋","r":"足","g":"用腳踩","w":["糟蹋"],"gi":30},{"c":"榻","r":"木","g":"木頭床","w":["下榻飯店"],"gi":30},{"c":"匿","r":"","g":"藏起來","w":["匿名","藏匿"],"gi":31},{"c":"暱","r":"日","g":"天天親近","w":["暱稱","親暱"],"gi":31},{"c":"惱","r":"心","g":"心裡煩","w":["惱羞成怒","煩惱"],"gi":32},{"c":"腦","r":"肉","g":"頭腦","w":["絞盡腦汁"],"gi":32},{"c":"睞","r":"目","g":"眼睛看過去","w":["受到青睞"],"gi":33},{"c":"徠","r":"","g":"招人過來","w":["招徠顧客"],"gi":33},{"c":"羸","r":"","g":"瘦弱","w":["羸弱"],"gi":34},{"c":"贏","r":"貝","g":"贏得錢財","w":["輸贏"],"gi":34},{"c":"祿","r":"示","g":"福氣、官的薪水","w":["俸祿"],"gi":35},{"c":"碌","r":"石","g":"忙個不停","w":["忙碌"],"gi":35},{"c":"臘","r":"肉","g":"醃過的肉","w":["臘月","臘肉"],"gi":36},{"c":"蠟","r":"虫","g":"蜜蜂做的蠟","w":["味同嚼蠟"],"gi":36},{"c":"籃","r":"竹","g":"竹編的籃子","w":["打籃球"],"gi":37},{"c":"藍","r":"艸","g":"藍草（染料）","w":["青出於藍"],"gi":37},{"c":"闌","r":"","g":"門欄→快結束","w":["夜闌人靜","意興闌珊"],"gi":38},{"c":"斕","r":"","g":"花紋鮮豔","w":["色彩斑斕"],"gi":38},{"c":"覽","r":"","g":"看","w":["一覽無遺","博覽古今"],"gi":39},{"c":"攬","r":"手","g":"用手抓過來","w":["延攬人才","大權獨攬"],"gi":39},{"c":"纜","r":"糸","g":"粗繩子","w":["空中纜車","光纖電纜"],"gi":39},{"c":"麟","r":"","g":"麒麟（鹿部）","w":["鳳毛麟角"],"gi":40},{"c":"鱗","r":"","g":"魚鱗（魚部）","w":["遍體鱗傷"],"gi":40},{"c":"遴","r":"辵","g":"挑選","w":["遴選"],"gi":40},{"c":"籠","r":"竹","g":"竹籠罩住","w":["籠罩","籠統"],"gi":41},{"c":"攏","r":"手","g":"用手合起來","w":["拉攏","合不攏嘴"],"gi":41},{"c":"壟","r":"土","g":"田埂→獨占","w":["壟斷市場"],"gi":41},{"c":"栗","r":"木","g":"栗子樹","w":["糖炒栗子"],"gi":42},{"c":"慄","r":"心","g":"心裡害怕發抖","w":["不寒而慄"],"gi":42},{"c":"粟","r":"米","g":"小米","w":["滄海一粟"],"gi":42},{"c":"伶","r":"人","g":"聰明的人","w":["伶牙俐齒"],"gi":43},{"c":"聆","r":"","g":"用耳朵聽","w":["聆聽教誨"],"gi":43},{"c":"玲","r":"玉","g":"玉的聲音→靈巧","w":["八面玲瓏"],"gi":43},{"c":"屢","r":"","g":"很多次","w":["屢試不爽","屢見不鮮"],"gi":44},{"c":"縷","r":"糸","g":"細線","w":["不絕如縷","千絲萬縷"],"gi":44},{"c":"履","r":"","g":"鞋子→走、實行","w":["履行合約","履歷表"],"gi":44},{"c":"療","r":"疒","g":"治病","w":["療養院","治療"],"gi":45},{"c":"潦","r":"水","g":"雨水亂流→草率","w":["字跡潦草"],"gi":45},{"c":"繚","r":"糸","g":"線纏繞","w":["繚繞"],"gi":45},{"c":"僚","r":"人","g":"一起做事的人","w":["幕僚","官僚"],"gi":45},{"c":"瞭","r":"目","g":"眼睛看清楚","w":["瞭如指掌","瞭望臺"],"gi":45},{"c":"厲","r":"","g":"磨刀石→嚴厲、猛烈","w":["再接再厲","變本加厲","雷厲風行","秣馬厲兵"],"gi":46},{"c":"勵","r":"力","g":"出力鼓勵","w":["勉勵","敦品勵學","勵精圖治"],"gi":46},{"c":"礪","r":"石","g":"磨刀石","w":["切磋砥礪"],"gi":46},{"c":"卦","r":"","g":"占卜","w":["八卦消息"],"gi":47},{"c":"掛","r":"手","g":"用手掛上","w":["披掛上陣"],"gi":47},{"c":"褂","r":"衣","g":"衣服","w":["長袍馬褂"],"gi":47},{"c":"概","r":"木","g":"大略","w":["英雄氣概","梗概"],"gi":48},{"c":"慨","r":"心","g":"心中感觸","w":["感慨","慨然","慷慨"],"gi":48},{"c":"稿","r":"禾","g":"文稿","w":["投稿","徵稿"],"gi":49},{"c":"槁","r":"木","g":"木頭乾枯","w":["槁木死灰","形容枯槁"],"gi":49},{"c":"詬","r":"言","g":"用話罵","w":["詬病"],"gi":50},{"c":"逅","r":"辵","g":"在路上遇見","w":["邂逅"],"gi":50},{"c":"刮","r":"刀","g":"用刀削","w":["刮目相看"],"gi":51},{"c":"括","r":"手","g":"用手收攏","w":["包括"],"gi":51},{"c":"果","r":"木","g":"果實→吃飽、果斷","w":["果腹","果敢"],"gi":52},{"c":"裹","r":"衣","g":"用布包住","w":["包裹","裹足不前"],"gi":52},{"c":"堪","r":"土","g":"能承受","w":["不堪負荷"],"gi":53},{"c":"勘","r":"力","g":"出力查看","w":["勘查地形"],"gi":53},{"c":"框","r":"木","g":"木頭框","w":["鏡框"],"gi":54},{"c":"筐","r":"竹","g":"竹編的筐","w":["籮筐"],"gi":54},{"c":"眶","r":"目","g":"眼睛四周","w":["眼眶"],"gi":54},{"c":"夸","r":"","g":"誇大","w":["夸父逐日"],"gi":55},{"c":"誇","r":"言","g":"說大話","w":["誇大不實"],"gi":55},{"c":"垮","r":"土","g":"土牆倒下","w":["打垮","垮臺"],"gi":55},{"c":"跨","r":"足","g":"腳跨過去","w":["跨越","橫跨","跨欄"],"gi":55},{"c":"胯","r":"肉","g":"兩腿之間","w":["胯下之辱"],"gi":55},{"c":"穫","r":"禾","g":"收割稻穀","w":["收穫"],"gi":56},{"c":"獲","r":"犬","g":"打獵抓到","w":["獲得","不勞而獲"],"gi":56},{"c":"悍","r":"心","g":"兇猛","w":["短小精悍"],"gi":57},{"c":"捍","r":"手","g":"用手擋","w":["捍衛國家"],"gi":57},{"c":"荒","r":"艸","g":"雜草叢生","w":["落荒而逃","兵荒馬亂"],"gi":58},{"c":"慌","r":"心","g":"心裡著急","w":["不慌不忙"],"gi":58},{"c":"晃","r":"日","g":"光一閃","w":["晃動","一晃眼"],"gi":59},{"c":"幌","r":"巾","g":"布做的招牌","w":["騙人的幌子"],"gi":59},{"c":"恍","r":"心","g":"心裡忽然明白","w":["恍然大悟"],"gi":59},{"c":"奐","r":"","g":"盛大","w":["美輪美奐"],"gi":60},{"c":"煥","r":"火","g":"光亮","w":["精神煥發"],"gi":60},{"c":"渙","r":"水","g":"水散開","w":["精神渙散"],"gi":60},{"c":"喚","r":"口","g":"用嘴叫","w":["一再呼喚"],"gi":60},{"c":"瘓","r":"疒","g":"生病不能動","w":["半身癱瘓"],"gi":60},{"c":"憾","r":"心","g":"心裡遺憾","w":["遺憾","憾恨"],"gi":61},{"c":"撼","r":"手","g":"用手搖動","w":["震撼"],"gi":61},{"c":"駭","r":"馬","g":"馬受驚","w":["驚濤駭浪"],"gi":62},{"c":"骸","r":"","g":"骨頭","w":["遺骸"],"gi":62},{"c":"伽","r":"人","g":"音譯字","w":["瑜伽"],"gi":63},{"c":"枷","r":"木","g":"木頭刑具","w":["枷鎖"],"gi":63},{"c":"徑","r":"","g":"小路","w":["別闢蹊徑","行不由徑"],"gi":64},{"c":"脛","r":"肉","g":"小腿","w":["不脛而走"],"gi":64},{"c":"逕","r":"辵","g":"小路、直接","w":["大相逕庭","逕自"],"gi":64},{"c":"均","r":"土","g":"平均","w":["勢均力敵"],"gi":65},{"c":"鈞","r":"金","g":"重量單位（三十斤）","w":["千鈞一髮"],"gi":65},{"c":"籍","r":"竹","g":"竹簡→書、登記","w":["書籍","戶籍謄本"],"gi":66},{"c":"藉","r":"艸","g":"草墊→依靠","w":["憑藉","藉口"],"gi":66},{"c":"嬌","r":"女","g":"柔弱可愛","w":["嬌生慣養"],"gi":67},{"c":"驕","r":"馬","g":"馬又高又壯→自大","w":["驕傲","天之驕子"],"gi":67},{"c":"績","r":"糸","g":"紡線的成果","w":["成績","績效"],"gi":68},{"c":"積","r":"禾","g":"堆稻穀","w":["累積","日積月累"],"gi":68},{"c":"蹟","r":"足","g":"腳印","w":["古蹟","名勝古蹟"],"gi":68},{"c":"抉","r":"手","g":"用手挑出","w":["抉擇"],"gi":69},{"c":"訣","r":"言","g":"口傳的方法、告別的話","w":["祕訣","訣別","訣竅"],"gi":69},{"c":"決","r":"水","g":"水沖破堤防→斷開、決定","w":["決裂","猶豫不決"],"gi":69},{"c":"踐","r":"足","g":"用腳踩","w":["作踐自己","實踐"],"gi":70},{"c":"賤","r":"貝","g":"價錢低","w":["賤賣土地"],"gi":70},{"c":"餞","r":"食","g":"送行的酒菜","w":["餞行","蜜餞"],"gi":70},{"c":"俊","r":"人","g":"才智出眾的人","w":["青年才俊"],"gi":71},{"c":"駿","r":"馬","g":"好馬","w":["駿馬奔騰"],"gi":71},{"c":"竣","r":"","g":"完成","w":["如期竣工"],"gi":71},{"c":"峻","r":"山","g":"山又高又陡","w":["高山峻嶺","嚴刑峻法"],"gi":71},{"c":"浚","r":"水","g":"把水道挖深","w":["疏浚河道"],"gi":71},{"c":"旗","r":"","g":"旗子","w":["旗開得勝","旗鼓相當"],"gi":72},{"c":"棋","r":"木","g":"棋子","w":["棋逢敵手","星羅棋布"],"gi":72},{"c":"氣","r":"","g":"空氣","w":["氣球"],"gi":73},{"c":"汽","r":"水","g":"水蒸氣","w":["汽水","汽油"],"gi":73},{"c":"券","r":"","g":"票","w":["消費券","入場券"],"gi":74},{"c":"卷","r":"","g":"書本","w":["開卷有益"],"gi":74},{"c":"青","r":"","g":"藍綠色","w":["雨過天青"],"gi":75},{"c":"清","r":"水","g":"水很清→純","w":["清一色"],"gi":75},{"c":"罄","r":"","g":"陶罐空了→用完","w":["售罄","罄竹難書"],"gi":76},{"c":"馨","r":"","g":"香氣","w":["馨香","溫馨"],"gi":76},{"c":"恰","r":"心","g":"剛剛好","w":["恰到好處"],"gi":77},{"c":"洽","r":"水","g":"像水一樣交融","w":["融洽","接洽"],"gi":77},{"c":"悻","r":"心","g":"生氣","w":["悻悻然"],"gi":78},{"c":"倖","r":"人","g":"意外得到好處","w":["僥倖"],"gi":78},{"c":"響","r":"","g":"聲音","w":["響應","影響"],"gi":79},{"c":"嚮","r":"口","g":"朝向","w":["嚮往","嚮導"],"gi":79},{"c":"饗","r":"食","g":"用酒菜招待","w":["饗宴"],"gi":79},{"c":"瑕","r":"玉","g":"玉上的斑點","w":["瑕不掩瑜","瑕疵"],"gi":80},{"c":"暇","r":"日","g":"空閒時間","w":["應接不暇","空暇"],"gi":80},{"c":"遐","r":"辵","g":"遙遠","w":["聞名遐邇","遐想"],"gi":80},{"c":"惺","r":"心","g":"聰明、清醒","w":["惺惺相惜","假惺惺"],"gi":81},{"c":"腥","r":"肉","g":"生肉的味道","w":["血腥","腥風血雨"],"gi":81},{"c":"猩","r":"犬","g":"猩猩→鮮紅色","w":["猩紅熱"],"gi":81},{"c":"霄","r":"雨","g":"天空","w":["九霄雲外","霄壤之別"],"gi":82},{"c":"宵","r":"","g":"夜晚","w":["通宵達旦","元宵"],"gi":82},{"c":"逍","r":"辵","g":"自在地走","w":["逍遙法外","逍遙自在"],"gi":82},{"c":"銷","r":"金","g":"熔化金屬→消失","w":["銷聲匿跡"],"gi":82},{"c":"宣","r":"","g":"公開說出","w":["心照不宣"],"gi":83},{"c":"暄","r":"日","g":"溫暖→問候","w":["寒暄"],"gi":83},{"c":"喧","r":"口","g":"聲音很大","w":["鑼鼓喧天"],"gi":83},{"c":"渲","r":"水","g":"用水把顏色染開","w":["渲染"],"gi":83},{"c":"軒","r":"","g":"高→高低","w":["不分軒輊","軒然大波"],"gi":83},{"c":"酌","r":"","g":"倒酒→考慮","w":["再三斟酌"],"gi":84},{"c":"灼","r":"火","g":"燒","w":["被火灼傷"],"gi":84},{"c":"矚","r":"目","g":"注視","w":["矚目","高瞻遠矚"],"gi":85},{"c":"囑","r":"口","g":"吩咐","w":["囑託"],"gi":85},{"c":"狀","r":"犬","g":"樣子","w":["狀況","獎狀"],"gi":86},{"c":"壯","r":"","g":"強大","w":["壯觀","壯舉"],"gi":86},{"c":"鍾","r":"金","g":"酒器→集中","w":["一見鍾情","老態龍鍾"],"gi":87},{"c":"鐘","r":"金","g":"敲的鐘","w":["暮鼓晨鐘"],"gi":87},{"c":"斬","r":"","g":"用斧頭砍","w":["斬釘截鐵","大有斬獲"],"gi":88},{"c":"嶄","r":"山","g":"山很高→突出","w":["嶄新氣象"],"gi":88},{"c":"至","r":"","g":"到","w":["無微不至","實至名歸"],"gi":89},{"c":"致","r":"","g":"招來、意趣","w":["致命傷","淋漓盡致","興致勃勃","閒情逸致"],"gi":89},{"c":"緻","r":"糸","g":"織得細密","w":["精緻","細緻"],"gi":89},{"c":"准","r":"","g":"允許","w":["准許"],"gi":90},{"c":"準","r":"水","g":"標準、預先","w":["準備"],"gi":90},{"c":"章","r":"","g":"文章、條理","w":["出口成章","雜亂無章"],"gi":91},{"c":"彰","r":"","g":"明顯","w":["相得益彰","欲蓋彌彰","成效不彰"],"gi":91},{"c":"璋","r":"玉","g":"玉器（生男孩）","w":["弄璋之喜"],"gi":91},{"c":"樟","r":"木","g":"樟樹","w":["樟腦丸"],"gi":91},{"c":"獐","r":"犬","g":"獐子","w":["獐頭鼠目"],"gi":91},{"c":"瘴","r":"疒","g":"讓人生病的氣","w":["瘴癘之氣","烏煙瘴氣"],"gi":91},{"c":"憧","r":"心","g":"心中嚮往","w":["憧憬"],"gi":92},{"c":"幢","r":"巾","g":"旗子→一棟、晃動","w":["一幢樓房","鬼影幢幢"],"gi":92},{"c":"惆","r":"心","g":"失意","w":["惆悵"],"gi":93},{"c":"稠","r":"禾","g":"禾苗很密","w":["稠密"],"gi":93},{"c":"綢","r":"糸","g":"用繩子綁緊","w":["未雨綢繆"],"gi":93},{"c":"轍","r":"","g":"車輪的痕跡","w":["重蹈覆轍","如出一轍","改弦易轍","南轅北轍"],"gi":94},{"c":"澈","r":"水","g":"水清","w":["清澈見底"],"gi":94},{"c":"徹","r":"","g":"貫通","w":["徹查","貫徹始終"],"gi":94},{"c":"撤","r":"手","g":"收回","w":["撤退"],"gi":94},{"c":"贍","r":"貝","g":"供給錢財","w":["贍養費"],"gi":95},{"c":"瞻","r":"目","g":"往遠處看","w":["有礙觀瞻"],"gi":95},{"c":"爍","r":"火","g":"火光閃動","w":["閃爍其詞"],"gi":96},{"c":"鑠","r":"金","g":"熔化金屬","w":["眾口鑠金"],"gi":96},{"c":"姍","r":"女","g":"女子走路慢","w":["姍姍來遲"],"gi":97},{"c":"珊","r":"玉","g":"玉佩聲漸停→將盡","w":["意興闌珊"],"gi":97},{"c":"跚","r":"足","g":"走路不穩","w":["步履蹣跚"],"gi":97},{"c":"孺","r":"","g":"小孩","w":["老弱婦孺","孺子可教"],"gi":98},{"c":"濡","r":"水","g":"沾濕","w":["耳濡目染","相濡以沫"],"gi":98},{"c":"儒","r":"人","g":"讀書人","w":["溫文儒雅","博學鴻儒"],"gi":98},{"c":"蠕","r":"虫","g":"蟲在爬","w":["蠕動"],"gi":98},{"c":"懦","r":"心","g":"膽小","w":["懦弱無能"],"gi":98},{"c":"糯","r":"米","g":"黏黏的米","w":["糯米"],"gi":98},{"c":"噪","r":"口","g":"很多嘴巴吵","w":["噪音","聲名大噪"],"gi":99},{"c":"燥","r":"火","g":"乾","w":["枯燥","乾燥"],"gi":99},{"c":"躁","r":"足","g":"跺腳→急","w":["煩躁","暴躁","毛躁","急躁"],"gi":99},{"c":"栽","r":"木","g":"種樹","w":["栽培","栽贓"],"gi":100},{"c":"裁","r":"衣","g":"剪布→決定","w":["制裁","別出心裁"],"gi":100},{"c":"尊","r":"","g":"敬重","w":["尊重別人"],"gi":101},{"c":"遵","r":"辵","g":"照著路走","w":["遵守規定"],"gi":101},{"c":"卒","r":"","g":"士兵","w":["兵卒"],"gi":102},{"c":"悴","r":"心","g":"憂愁消瘦","w":["憔悴"],"gi":102},{"c":"瘁","r":"疒","g":"累到生病","w":["鞠躬盡瘁","心力交瘁"],"gi":102},{"c":"粹","r":"米","g":"純米→精華","w":["發揚國粹"],"gi":102},{"c":"萃","r":"艸","g":"草聚在一起","w":["人文薈萃","出類拔萃"],"gi":102},{"c":"淬","r":"水","g":"燒紅的刀浸水","w":["淬礪"],"gi":102},{"c":"猝","r":"犬","g":"狗突然衝出","w":["猝死","猝不及防"],"gi":102},{"c":"燦","r":"火","g":"光亮","w":["燦爛"],"gi":103},{"c":"璨","r":"玉","g":"美玉的光","w":["璀璨"],"gi":103},{"c":"摧","r":"手","g":"用手折斷","w":["摧殘","摧枯拉朽"],"gi":104},{"c":"催","r":"人","g":"叫人快一點","w":["催促","催眠"],"gi":104},{"c":"蹉","r":"足","g":"失足→錯過","w":["蹉跎時光"],"gi":105},{"c":"磋","r":"石","g":"磨","w":["切磋"],"gi":105},{"c":"睬","r":"目","g":"看一眼","w":["不理不睬"],"gi":106},{"c":"綵","r":"糸","g":"彩色絲綢","w":["剪綵"],"gi":106},{"c":"彩","r":"","g":"顏色","w":["彩排"],"gi":106},{"c":"伺","r":"人","g":"觀察等待","w":["伺機而動"],"gi":107},{"c":"嗣","r":"口","g":"後代","w":["後代子嗣"],"gi":107},{"c":"撕","r":"手","g":"用手扯開","w":["撕開"],"gi":108},{"c":"廝","r":"","g":"互相","w":["廝殺","長相廝守"],"gi":108},{"c":"嘶","r":"口","g":"聲音沙啞","w":["聲嘶力竭"],"gi":108},{"c":"祟","r":"示","g":"鬼神作怪","w":["鬼鬼祟祟"],"gi":109},{"c":"崇","r":"山","g":"山很高→尊敬","w":["崇敬"],"gi":109},{"c":"騷","r":"馬","g":"馬亂動→擾亂","w":["騷擾鄰居"],"gi":110},{"c":"搔","r":"手","g":"用手抓","w":["搔首弄姿","搔癢"],"gi":110},{"c":"藹","r":"艸","g":"和氣","w":["和藹"],"gi":111},{"c":"靄","r":"雨","g":"雲氣","w":["雲靄"],"gi":111},{"c":"揚","r":"手","g":"舉起、顯揚","w":["其貌不揚","揚長而去"],"gi":112},{"c":"楊","r":"木","g":"楊柳樹","w":["百步穿楊"],"gi":112},{"c":"偃","r":"人","g":"倒下","w":["偃旗息鼓","風行草偃"],"gi":113},{"c":"揠","r":"手","g":"用手拔","w":["揠苗助長"],"gi":113},{"c":"鴉","r":"鳥","g":"烏鴉","w":["亂塗鴉","鴉雀無聲"],"gi":114},{"c":"鴨","r":"鳥","g":"鴨子","w":["鴨舌帽","填鴨式教學"],"gi":114},{"c":"涯","r":"水","g":"水邊→盡頭","w":["天涯海角"],"gi":115},{"c":"崖","r":"山","g":"山邊","w":["懸崖峭壁"],"gi":115},{"c":"捱","r":"手","g":"忍受","w":["捱人笑罵"],"gi":115},{"c":"宛","r":"","g":"好像","w":["宛如新生"],"gi":116},{"c":"腕","r":"肉","g":"手腕","w":["手腕"],"gi":116},{"c":"蜿","r":"虫","g":"蛇彎彎曲曲地爬","w":["蜿蜒崎嶇"],"gi":116},{"c":"婉","r":"女","g":"柔順","w":["溫柔婉約"],"gi":116},{"c":"惋","r":"心","g":"心中可惜","w":["令人惋惜"],"gi":116},{"c":"苑","r":"艸","g":"園林","w":["翰苑之光"],"gi":116},{"c":"莞","r":"艸","g":"微笑","w":["令人莞爾"],"gi":116},{"c":"騖","r":"馬","g":"馬亂跑→追求","w":["好高騖遠"],"gi":117},{"c":"鶩","r":"鳥","g":"野鴨","w":["趨之若鶩"],"gi":117},{"c":"委","r":"女","g":"彎曲","w":["委婉","委屈"],"gi":118},{"c":"萎","r":"艸","g":"草枯了","w":["枯萎"],"gi":118},{"c":"于","r":"","g":"往","w":["之子于歸"],"gi":119},{"c":"竽","r":"竹","g":"竹做的樂器","w":["濫竽充數"],"gi":119},{"c":"芋","r":"艸","g":"芋頭","w":["芋頭","燙手山芋"],"gi":119},{"c":"予","r":"","g":"給","w":["予取予求","不予置評"],"gi":119}],"groups":[["布","怖"],["簿","薄"],["補","捕"],["繃","蹦"],["博","搏","膊"],["敝","弊","幣","蔽","斃"],["辨","辯","辮","瓣","辦"],["伴","拌","絆","畔","判","叛","扮"],["怦","抨"],["矛","茅"],["蜜","密"],["蔓","漫"],["芒","茫"],["瞞","蹣","顢","滿"],["慕","募","幕","暮"],["妨","防"],["番","翻"],["釜","斧"],["分","紛","氛"],["鋒","峰","蜂","烽"],["締","諦","蒂"],["盯","叮"],["旦","但"],["砥","詆","邸"],["惰","墮","墜"],["咄","拙","絀","茁"],["袒","坦"],["途","塗"],["蹚","瞠"],["攤","灘","癱"],["塌","遢","蹋","榻"],["匿","暱"],["惱","腦"],["睞","徠"],["羸","贏"],["祿","碌"],["臘","蠟"],["籃","藍"],["闌","斕"],["覽","攬","纜"],["麟","鱗","遴"],["籠","攏","壟"],["栗","慄","粟"],["伶","聆","玲"],["屢","縷","履"],["療","潦","繚","僚","瞭"],["厲","勵","礪"],["卦","掛","褂"],["概","慨"],["稿","槁"],["詬","逅"],["刮","括"],["果","裹"],["堪","勘"],["框","筐","眶"],["夸","誇","垮","跨","胯"],["穫","獲"],["悍","捍"],["荒","慌"],["晃","幌","恍"],["奐","煥","渙","喚","瘓"],["憾","撼"],["駭","骸"],["伽","枷"],["徑","脛","逕"],["均","鈞"],["籍","藉"],["嬌","驕"],["績","積","蹟"],["抉","訣","決"],["踐","賤","餞"],["俊","駿","竣","峻","浚"],["旗","棋"],["氣","汽"],["券","卷"],["青","清"],["罄","馨"],["恰","洽"],["悻","倖"],["響","嚮","饗"],["瑕","暇","遐"],["惺","腥","猩"],["霄","宵","逍","銷"],["宣","暄","喧","渲","軒"],["酌","灼"],["矚","囑"],["狀","壯"],["鍾","鐘"],["斬","嶄"],["至","致","緻"],["准","準"],["章","彰","璋","樟","獐","瘴"],["憧","幢"],["惆","稠","綢"],["轍","澈","徹","撤"],["贍","瞻"],["爍","鑠"],["姍","珊","跚"],["孺","濡","儒","蠕","懦","糯"],["噪","燥","躁"],["栽","裁"],["尊","遵"],["卒","悴","瘁","粹","萃","淬","猝"],["燦","璨"],["摧","催"],["蹉","磋"],["睬","綵","彩"],["伺","嗣"],["撕","廝","嘶"],["祟","崇"],["騷","搔"],["藹","靄"],["揚","楊"],["偃","揠"],["鴉","鴨"],["涯","崖","捱"],["宛","腕","蜿","婉","惋","苑","莞"],["騖","鶩"],["委","萎"],["于","竽","芋","予"]],"traps":[{"w":"再接再厲","c":"厲","x":"勵","hook":"厲＝磨刀石。像鬥雞打完一回合，再磨一次嘴再上——不是「鼓勵」的勵。變本加厲、雷厲風行也是這個。"},{"w":"名列前茅","c":"茅","x":"矛","hook":"古代軍隊的前鋒舉著茅草當旗號，所以「前茅」是草。茅塞頓開也是草（心被茅草塞住）。"},{"w":"一敗塗地","c":"塗","x":"途","hook":"敗到肝腦塗在泥地上——是泥土（土），不是道路。"},{"w":"不脛而走","c":"脛","x":"徑","hook":"脛＝小腿。沒有腿卻自己跑了→消息傳很快。"},{"w":"大相逕庭","c":"逕","x":"徑","hook":"逕＝門外的小路，庭＝院子，一個在外一個在內，差很遠。"},{"w":"千鈞一髮","c":"鈞","x":"均","hook":"鈞是重量（金屬秤錘），三十斤。千鈞重物掛在一根頭髮上。"},{"w":"鳳毛麟角","c":"麟","x":"鱗","hook":"麒麟（鹿部）的角，跟鳳凰的毛一樣稀有。魚才有鱗：遍體鱗傷。"},{"w":"罄竹難書","c":"罄","x":"馨","hook":"缶＝陶罐，罄＝罐子空了。把竹子砍光寫竹簡，罪狀還寫不完。售罄也是賣光。"},{"w":"好高騖遠","c":"騖","x":"鶩","hook":"馬部：像脫韁的馬一直往遠處亂衝。"},{"w":"趨之若鶩","c":"鶩","x":"騖","hook":"鳥部：像一群野鴨搶著游過去。"},{"w":"揠苗助長","c":"揠","x":"偃","hook":"揠＝用手拔（扌）。偃是倒下：偃旗息鼓、風行草偃。"},{"w":"相形見絀","c":"絀","x":"拙","hook":"糸部：布料不夠用→比不上別人。左支右絀也是不夠。"},{"w":"一見鍾情","c":"鍾","x":"鐘","hook":"鍾＝把感情集中在一個人身上。會敲響的才是鐘：暮鼓晨鐘。"},{"w":"鬼鬼祟祟","c":"祟","x":"崇","hook":"下面是「示」＝鬼神。鬼在作怪；上面是山的「崇」是崇高。"},{"w":"震撼","c":"撼","x":"憾","hook":"撼要用手去搖（扌）；遺憾才是心（忄）。"},{"w":"閃爍其詞","c":"爍","x":"鑠","hook":"說話像火光一閃一閃，看不清楚（火）。"},{"w":"眾口鑠金","c":"鑠","x":"爍","hook":"大家一起說，連金屬都能熔化（金）。"},{"w":"欲蓋彌彰","c":"彰","x":"章","hook":"彰＝明顯。越想蓋住越明顯。相得益彰也是越來越明顯。"},{"w":"未雨綢繆","c":"綢","x":"稠","hook":"綢繆＝用繩子把門窗綁緊（糸），下雨前先做好。"},{"w":"重蹈覆轍","c":"轍","x":"徹","hook":"轍＝車輪壓出的痕跡（車）。走上翻車的老路。"},{"w":"耳濡目染","c":"濡","x":"儒","hook":"濡＝沾濕（氵）。天天泡在裡面，不知不覺被染上。"},{"w":"別出心裁","c":"裁","x":"栽","hook":"裁＝剪布（衣）。用自己的心思剪出新樣子。"},{"w":"鞠躬盡瘁","c":"瘁","x":"粹","hook":"疒＝生病。累到生病為止。心力交瘁也是。"},{"w":"出類拔萃","c":"萃","x":"粹","hook":"萃＝一叢草（艹）。從一叢草裡冒出頭。"},{"w":"美輪美奐","c":"奐","x":"煥","hook":"奐＝盛大（大）。房子高大華麗。精神煥發才用火部的煥。"},{"w":"根深蒂固","c":"蒂","x":"締","hook":"蒂＝花果連著枝的柄（艹），柄長得牢就掉不下來。"},{"w":"中流砥柱","c":"砥","x":"抵","hook":"砥柱是黃河中的一塊大石頭（石），激流也沖不倒。"},{"w":"濫竽充數","c":"竽","x":"芋","hook":"竽是竹管樂器（竹）。不會吹還混在樂隊裡。芋頭才是草部。"},{"w":"聲名大噪","c":"噪","x":"躁","hook":"噪＝很多張嘴（口）一起講，名聲很響。"},{"w":"對簿公堂","c":"簿","x":"薄","hook":"簿＝竹片做的本子（竹），古代的訴狀紀錄。"},{"w":"不絕如縷","c":"縷","x":"屢","hook":"縷＝細線（糸），像一根細線一樣快斷了卻沒斷。"},{"w":"視如敝屣","c":"敝","x":"弊","hook":"敝＝破舊。看成破鞋子。弊端、作弊才是「弊」。"}],"detective":[{"s":"這次辨論比賽，他的口才好到讓對手啞口無言。","wrong":"辨","right":"辯"},{"s":"颱風過後，海邊的沙攤上堆滿了垃圾。","wrong":"攤","right":"灘"},{"s":"弟弟一聽到要放假，就繃繃跳跳地衝出門。","wrong":"繃","right":"蹦"},{"s":"這部電影的爆破特效，看得全場觀眾都很震憾。","wrong":"憾","right":"撼"},{"s":"他輸了第一場，沒有放棄，再接再勵拿下冠軍。","wrong":"勵","right":"厲"},{"s":"她每次段考都名列前矛，連老師都很佩服。","wrong":"矛","right":"茅"},{"s":"這家店的檸檬塔太好吃了，開賣一小時就售馨。","wrong":"馨","right":"罄"},{"s":"爸爸工作忙祿，常常加班到很晚才回家。","wrong":"祿","right":"碌"},{"s":"被問到錢去哪裡，他閃鑠其詞，一直轉移話題。","wrong":"鑠","right":"爍"},{"s":"校長一走進教室，全班立刻鴨雀無聲。","wrong":"鴨","right":"鴉"},{"s":"他做事好高鶩遠，連基本功都不肯練。","wrong":"鶩","right":"騖"},{"s":"演唱會一開賣，歌迷就趨之若騖地排隊搶票。","wrong":"騖","right":"鶩"},{"s":"新圖書館蓋得美輪美煥，週末吸引很多人參觀。","wrong":"煥","right":"奐"},{"s":"停課的消息不徑而走，十分鐘內全校都知道了。","wrong":"徑","right":"脛"},{"s":"兩隊實力勢鈞力敵，一直打到延長賽才分出勝負。","wrong":"鈞","right":"均"},{"s":"考前一晚才抱佛腳，只能抱著僥悻的心理去考試。","wrong":"悻","right":"倖"}]};
+const $ = s => document.querySelector(s);
+const app = $("#app");
+const by = Object.fromEntries(D.chars.map(x => [x.c, x]));
+const shape = r => (D.radicalShape[r] || r);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
+
+// 紀錄（存在這台裝置的瀏覽器；讀不到就從零開始）
+const KEY = "xy:v1:" + D.id;
+let S = { miss: {}, best: 0, boss: 0, det: 0 };
+try { S = Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const addMiss = c => { S.miss[c] = (S.miss[c] || 0) + 1; save(); };
+const fixMiss = c => { if (S.miss[c]) { S.miss[c]--; if (!S.miss[c]) delete S.miss[c]; save(); } };
+const missList = () => Object.keys(S.miss);
+
+let timerId = null;
+const stopTimer = () => { if (timerId) cancelAnimationFrame(timerId); timerId = null; };
+
+function bar(title, right = "") {
+  return `<div class="top"><button class="back" onclick="home()">← 首頁</button><span class="t">${title}</span>${right}</div>`;
+}
+
+// ---------- 首頁 ----------
+function home() {
+  stopTimer();
+  const m = missList().length;
+  app.innerHTML = `
+  <div class="hero">
+    <a class="back" href="../" style="text-decoration:none;display:inline-block;margin-bottom:10px">← 選單</a>
+    <div class="eyebrow">國文形音・${esc(D.unit)}</div>
+    <h1>形近字<span>闖關</span></h1>
+    <p>${D.groups.length} 組長得很像的字。秘訣只有一個：<b>先看部首，再對意思</b>。</p>
+  </div>
+  <div class="modes">
+    <button class="mode" onclick="cards()"><span class="ic">扌</span><span><strong>部首密碼卡</strong><small>先看懂規則：扌是手、忄是心、⻊是腳</small></span><span class="badge">先看這個</span></button>
+    <button class="mode" onclick="quiz('fast')"><span class="ic">⚡</span><span><strong>二選一快打</strong><small>15 題，每題 12 秒，連續答對有連擊</small></span><span class="badge">最佳 ${S.best}</span></button>
+    <button class="mode" onclick="detective()"><span class="ic">🔍</span><span><strong>錯字偵探</strong><small>每句藏一個錯字，把它抓出來</small></span><span class="badge">${S.det}/${D.detective.length}</span></button>
+    <button class="mode boss" onclick="quiz('boss')"><span class="ic">魔</span><span><strong>魔王關：陷阱字</strong><small>部首救不了你的字，3 條命</small></span><span class="badge">最佳 ${S.boss}</span></button>
+    <button class="mode" onclick="quiz('miss')" ${m ? "" : "disabled"}><span class="ic">📒</span><span><strong>錯題本</strong><small>${m ? `有 ${m} 個字還要再練` : "答錯的字會自動收進來"}</small></span><span class="badge">${m || ""}</span></button>
+  </div>`;
+}
+
+// ---------- 解說卡 ----------
+function compareHTML(c) {
+  const g = D.groups[by[c].gi];
+  return `<div class="cmp">${g.map(k => { const x = by[k]; return `<div class="cmp-r"><span class="c" style="${k === c ? "color:var(--seal)" : ""}">${k}</span><span>${esc(x.w.join("、"))}<small>${x.r ? shape(x.r) + "：" + esc(D.radicals[x.r]) + "｜" : ""}${esc(x.g)}</small></span></div>`; }).join("")}</div>`;
+}
+function explainHTML(c, good, hook) {
+  const x = by[c];
+  return `<div class="explain ${good ? "good" : ""}">
+    <div class="ex-h"><span class="ex-ch">${c}</span><div><p><strong>${good ? "答對了！" : "正確是「" + c + "」"}</strong> ${esc(x ? x.g : "")}</p>${x && x.r ? `<span class="ex-rad">${shape(x.r)}＝${esc(D.radicals[x.r])}</span>` : ""}</div></div>
+    ${hook ? `<div class="hook">💡 ${esc(hook)}</div>` : ""}
+    ${x ? compareHTML(c) : ""}
+    <button class="go" id="go">下一題 →</button>
+  </div>`;
+}
+
+// ---------- 題目產生 ----------
+function makeQ(mode) {
+  if (mode === "boss") {
+    const t = pick(D.traps);
+    const sib = by[t.c] ? D.groups[by[t.c].gi].filter(k => k !== t.c && k !== t.x) : [];
+    return { word: t.w, ans: t.c, opts: shuffle([t.c, t.x, ...shuffle(sib).slice(0, 1)]), hook: t.hook };
+  }
+  let pool = D.chars.filter(x => D.groups[x.gi].length > 1);
+  if (mode === "miss") pool = missList().map(c => by[c]).filter(Boolean);
+  const x = pick(pool);
+  const sib = shuffle(D.groups[x.gi].filter(k => k !== x.c)).slice(0, 3);
+  return { word: pick(x.w), ans: x.c, opts: shuffle([x.c, ...sib]) };
+}
+
+// ---------- 快打／錯題／魔王 ----------
+function quiz(mode) {
+  const total = mode === "boss" ? 10 : mode === "miss" ? Math.min(10, missList().length * 2) : 15;
+  let n = 0, score = 0, combo = 0, lives = 3, last = "";
+  const wrong = new Set();
+  const title = { fast: "⚡ 二選一快打", boss: "👹 魔王關", miss: "📒 錯題本" }[mode];
+  next();
+  function next() {
+    stopTimer();
+    if (n >= total || lives <= 0 || (mode === "miss" && !missList().length)) return finish();
+    let q, guard = 0;
+    do { q = makeQ(mode); } while (q.word === last && guard++ < 10);
+    last = q.word; n++;
+    const right = mode === "boss" ? `<span class="pill">${"❤️".repeat(lives)}${"🤍".repeat(3 - lives)}</span>` : `<span class="pill">${n}/${total}・${score} 分</span>`;
+    const holeAt = q.word.indexOf(q.ans);
+    const word = esc(q.word.slice(0, holeAt)) + `<span class="hole" id="hole"></span>` + esc(q.word.slice(holeAt + 1));
+    app.innerHTML = bar(title, right) + `
+      ${mode === "fast" ? `<div class="timer"><i id="bar"></i></div>` : ""}
+      <div class="qcard"><div class="qword">${word}</div><div class="qhint">哪一個字才對？先看部首想意思</div></div>
+      <div class="opts" style="--n:${q.opts.length}">${q.opts.map(o => `<button class="opt" data-o="${o}">${o}</button>`).join("")}</div>
+      <div class="combo" id="combo">${combo >= 2 ? `🔥 ${combo} 連擊` : ""}</div>
+      <div id="ex"></div>`;
+    let done = false;
+    const answer = o => {
+      if (done) return; done = true; stopTimer();
+      const ok = o === q.ans;
+      app.querySelectorAll(".opt").forEach(b => { b.disabled = true; if (b.dataset.o === q.ans) b.classList.add("ok"); else if (b.dataset.o === o) b.classList.add("no"); });
+      const h = $("#hole"); h.textContent = q.ans; h.classList.add("fill");
+      if (ok) { score += 10 + Math.min(combo, 5) * 2; combo++; fixMiss(q.ans); }
+      else { combo = 0; wrong.add(q.ans); addMiss(q.ans); if (mode === "boss") lives--; }
+      $("#combo").textContent = combo >= 2 ? `🔥 ${combo} 連擊` : "";
+      if (ok && mode !== "boss") { setTimeout(next, 650); return; }
+      $("#ex").innerHTML = explainHTML(q.ans, ok, q.hook);
+      $("#go").onclick = next;
+      $("#ex").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    };
+    app.querySelectorAll(".opt").forEach(b => b.onclick = () => answer(b.dataset.o));
+    if (mode === "fast") {
+      const T = 12000, t0 = performance.now(), bar = $("#bar");
+      const tick = now => { const p = 1 - (now - t0) / T; bar.style.transform = `scaleX(${Math.max(p, 0)})`; if (p <= 0) answer(null); else timerId = requestAnimationFrame(tick); };
+      timerId = requestAnimationFrame(tick);
+    }
+  }
+  function finish() {
+    stopTimer();
+    if (mode === "fast" && score > S.best) S.best = score;
+    if (mode === "boss" && score > S.boss) S.boss = score;
+    save();
+    const msg = mode === "boss" ? (lives > 0 ? "魔王打倒了！" : "魔王還站著……再挑戰一次") : wrong.size ? "錯的字已收進錯題本" : "全對，太強了！";
+    app.innerHTML = bar(title) + `<div class="result"><div class="big">${score}</div><p>${msg}</p>
+      ${wrong.size ? `<div class="misslist">${[...wrong].map(c => `<button class="chip" onclick="peek('${c}')">${c}</button>`).join("")}</div><p>點字可以看解說</p>` : ""}
+      <button class="go" onclick="quiz('${mode === "miss" && !missList().length ? "fast" : mode}')">再玩一次</button></div>`;
+  }
+}
+
+// ---------- 錯字偵探 ----------
+function detective(i = 0) {
+  stopTimer();
+  if (i >= D.detective.length) {
+    app.innerHTML = bar("🔍 錯字偵探") + `<div class="result"><div class="big">🕵️</div><p>${D.detective.length} 句全部破案！</p><button class="go" onclick="detective(0)">從頭再玩</button></div>`;
+    return;
+  }
+  const q = D.detective[i];
+  const at = q.s.indexOf(q.wrong);
+  let tries = 0;
+  app.innerHTML = bar("🔍 錯字偵探", `<span class="pill">${i + 1}/${D.detective.length}</span>`) + `
+    <div class="qcard"><div class="sent">${[...q.s].map((ch, k) => /[，。、！？：；「」]/.test(ch) ? `<button class="p">${ch}</button>` : `<button data-k="${k}">${ch}</button>`).join("")}</div>
+    <div class="qhint" id="dh">這句話裡有一個錯字，點它！</div></div>
+    <div id="fix"></div><div id="ex"></div>`;
+  app.querySelectorAll(".sent button[data-k]").forEach(b => b.onclick = () => {
+    if (+b.dataset.k !== at) { tries++; b.classList.remove("miss"); void b.offsetWidth; b.classList.add("miss"); if (tries >= 3) $("#dh").textContent = "提示：錯字跟「" + q.right + "」長得很像"; return; }
+    b.classList.add("hit");
+    app.querySelectorAll(".sent button").forEach(x => x.disabled = true);
+    $("#dh").textContent = "抓到了！它應該是哪個字？";
+    const g = by[q.right] ? D.groups[by[q.right].gi] : [q.right, q.wrong];
+    const others = shuffle(g.filter(k => k !== q.right && k !== q.wrong)).slice(0, 2);
+    const opts = shuffle([q.right, ...(others.length ? others : [q.wrong])]);
+    $("#fix").innerHTML = `<div class="opts" style="--n:${opts.length}">${opts.map(o => `<button class="opt" data-o="${o}">${o}</button>`).join("")}</div>`;
+    $("#fix").querySelectorAll(".opt").forEach(o => o.onclick = () => {
+      const ok = o.dataset.o === q.right;
+      if (!ok) { o.classList.add("no"); o.disabled = true; addMiss(q.right); return; }
+      o.classList.add("ok"); b.textContent = q.right; b.classList.remove("hit"); b.classList.add("fixed");
+      if (i + 1 > S.det) { S.det = i + 1; save(); }
+      $("#ex").innerHTML = explainHTML(q.right, true);
+      $("#go").textContent = i + 1 < D.detective.length ? "下一句 →" : "看結果 →";
+      $("#go").onclick = () => detective(i + 1);
+    });
+  });
+}
+
+// ---------- 部首密碼卡 ----------
+function cards(tab = "rad") {
+  stopTimer();
+  const rows = Object.entries(D.radicals).map(([r, mean]) => ({ r, mean, list: D.chars.filter(x => x.r === r) })).filter(x => x.list.length).sort((a, b) => b.list.length - a.list.length);
+  app.innerHTML = bar("部首密碼卡") + `
+    <div class="tabs"><button class="${tab === "rad" ? "on" : ""}" onclick="cards('rad')">部首密碼</button><button class="${tab === "trap" ? "on" : ""}" onclick="cards('trap')">陷阱字 ${D.traps.length}</button></div>
+    ${tab === "rad" ? `<p class="qhint" style="text-align:left;margin:0 0 10px">點任何一個字，看它和長得像的字怎麼分。</p>` + rows.map(x => `<div class="rad"><div class="rad-h"><span class="s">${shape(x.r)}</span><strong>${esc(x.mean)}</strong><span class="pill">${x.list.length} 字</span></div>
+      <div class="chips">${x.list.map(c => `<button class="chip" onclick="peek('${c.c}')">${c.c}</button>`).join("")}</div></div>`).join("")
+    : D.traps.map(t => `<div class="trap"><div class="w">${esc(t.w).replace(t.c, `<b>${t.c}</b>`)}</div><p>${esc(t.hook)}</p></div>`).join("")}`;
+}
+function peek(c) {
+  document.querySelector(".sheet")?.remove();
+  const x = by[c]; if (!x) return;
+  const el = document.createElement("div");
+  el.className = "sheet";
+  el.innerHTML = `<div class="in">${explainHTML(c, true).replace("答對了！", "比一比").replace("下一題 →", "關閉")}</div>`;
+  document.body.appendChild(el);
+  el.querySelector("#go").onclick = () => el.remove();
+}
+
+home();
+</script>
